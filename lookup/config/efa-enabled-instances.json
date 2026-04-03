@@ -1,0 +1,13 @@
+{
+    "trn1.32xlarge": true,
+    "trn1n.32xlarge": true,
+    "trn2.48xlarge": true,
+    "trn2e.48xlarge": true,
+    "trn2u.48xlarge": true,
+    "trn3.48xlarge": true,
+    "trn3p.48xlarge": true,
+    "trn3pd98.48xlarge": true,
+    "trn3s.48xlarge": true,
+    "trn3-dev0.48xlarge": true,
+    "trn3-dev1.48xlarge": true
+}
