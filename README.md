@@ -38,13 +38,17 @@ See `lookup/config/efa-enabled-instances.json` for the full list of supported EF
 
 ### Adding Support for New Instance Types
 
-To add support for a new EFA-enabled Neuron instance type, update `lookup/config/efa-enabled-instances.json`.
+New instance type mappings are maintained by the AWS Neuron team and will be added as new instance types are introduced.
+
+The supported instance types are listed in `lookup/config/efa-enabled-instances.json`.
 
 ### Adding Support for New Instance Families
 
+New instance family mappings are maintained by the AWS Neuron team and will be added as new instance families are introduced.
+
 Mappings from Neuron device IDs to EFA BDFs are stored as JSON files in the `lookup/neuron` directory. These mappings are constructed from the Neuron collectives topology definitions and the Neuron driver device mappings.
 
-`lookup/config/instance-family-mappings.json` maps instance families to their corresponding mapping files. Update this file when adding a new instance family.
+`lookup/config/instance-family-mappings.json` maps instance families to their corresponding mapping files.
 
 ## Security
 

@@ -60,17 +60,17 @@ build:: fmt vet security-scan
 ##@ Unit test
 .PHONY: prepare-coverage
 prepare-coverage::
-	mkdir -p $(SRCROOT)/build/brazil-documentation/coverage/$(MODULE_NAME)
+	mkdir -p $(SRCROOT)/build/coverage/$(MODULE_NAME)
 
 .PHONY: unit-test
 unit-test:: prepare-coverage
-	go test -v -tags unit `go list ./... | grep -v pkg` -count 1 -covermode=atomic -coverprofile $(SRCROOT)/build/brazil-documentation/coverage/$(MODULE_NAME)/coverage.out
-	sed 's|$(MODULE_NAME)/||g' $(SRCROOT)/build/brazil-documentation/coverage/$(MODULE_NAME)/coverage.out > $(SRCROOT)/build/brazil-documentation/coverage/coverage.out
+	go test -v -tags unit `go list ./... | grep -v pkg` -count 1 -covermode=atomic -coverprofile $(SRCROOT)/build/coverage/$(MODULE_NAME)/coverage.out
+	sed 's|$(MODULE_NAME)/||g' $(SRCROOT)/build/coverage/$(MODULE_NAME)/coverage.out > $(SRCROOT)/build/coverage/coverage.out
 
 .PHONY: generate-coverage
 generate-coverage:: unit-test
-	go tool cover -html=$(SRCROOT)/build/brazil-documentation/coverage/$(MODULE_NAME)/coverage.out -o $(SRCROOT)/build/brazil-documentation/coverage/$(MODULE_NAME)/index.html
-	cp $(SRCROOT)/build/brazil-documentation/coverage/$(MODULE_NAME)/index.html $(SRCROOT)/build/brazil-documentation/coverage/
+	go tool cover -html=$(SRCROOT)/build/coverage/$(MODULE_NAME)/coverage.out -o $(SRCROOT)/build/coverage/$(MODULE_NAME)/index.html
+	cp $(SRCROOT)/build/coverage/$(MODULE_NAME)/index.html $(SRCROOT)/build/coverage/
 
 ##@ Release
 .PHONY: release
