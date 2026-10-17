@@ -398,6 +398,7 @@ func TestGetNeuronInstanceType(t *testing.T) {
 }
 
 func TestGetInstanceFamily(t *testing.T) {
+	initMappingsOnce.Do(initMappings)
 	tests := []struct {
 		name         string
 		instanceType string
