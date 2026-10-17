@@ -19,6 +19,7 @@ import (
 	"errors"
 	"io"
 	"io/fs"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -208,4 +209,32 @@ func TestInitMappingsImplErrorPaths(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestLazyInitMappings(t *testing.T) {
+	originalInitMappings := initMappings
+	originalInitError := initError
+	defer func() {
+		initMappings = originalInitMappings
+		initMappingsOnce = sync.Once{}
+		initMappingsOnce.Do(initMappings)
+		initError = originalInitError
+	}()
+
+	initCalls := 0
+	initMappings = func() {
+		initCalls++
+	}
+	initMappingsOnce = sync.Once{}
+	initError = nil
+
+	assert.Equal(t, 0, initCalls)
+
+	_, err := getDeviceGroupIDsImpl("0", DeviceTypeNeuron)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, initCalls)
+
+	_, err = getDeviceGroupIDsImpl("0", DeviceTypeNeuron)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, initCalls)
 }

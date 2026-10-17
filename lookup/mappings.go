@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"sync"
 
 	"k8s.io/klog/v2"
 )
@@ -42,9 +43,10 @@ var (
 		DeviceTypeNeuron: neuronToEfa,
 	}
 
-	initMappings = initMappingsImpl
-	initError    error
-	configFS     fs.FS = actualConfigFS
+	initMappings     = initMappingsImpl
+	initMappingsOnce sync.Once
+	initError        error
+	configFS         fs.FS = actualConfigFS
 )
 
 func initMappingsImpl() {
@@ -103,8 +105,4 @@ func initMappingsImpl() {
 		// Build neuronToEfa table
 		neuronToEfa[neuronDeviceID] = efaBDF
 	}
-}
-
-func init() {
-	initMappings()
 }

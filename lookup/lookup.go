@@ -62,6 +62,7 @@ func isValidNeuronDeviceID(deviceID string) bool {
 }
 
 func getDeviceGroupIDsImpl(deviceID string, deviceType DeviceType) (map[string]string, error) {
+	initMappingsOnce.Do(initMappings)
 	if initError != nil {
 		return nil, fmt.Errorf("initialization failed: %v", initError)
 	}
