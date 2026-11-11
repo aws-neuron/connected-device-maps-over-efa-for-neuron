@@ -221,6 +221,67 @@ func TestGetDeviceGroupIDs(t *testing.T) {
 	}
 }
 
+func TestGetDeviceGroupIDsSkipsGroupsLargerThanInstance(t *testing.T) {
+	originalDeviceTypeMappings := deviceTypeMappings
+	originalNeuronToEfa := neuronToEfa
+	originalInitError := initError
+	defer func() {
+		deviceTypeMappings = originalDeviceTypeMappings
+		neuronToEfa = originalNeuronToEfa
+		initError = originalInitError
+	}()
+
+	// trn3en mapping: 4 neuron devices
+	initError = nil
+	neuronToEfa = map[string]string{
+		"0": "0000:50:00.0",
+		"1": "0000:58:00.0",
+		"2": "0000:48:00.0",
+		"3": "0000:61:00.0",
+	}
+	deviceTypeMappings = map[DeviceType]map[string]string{
+		DeviceTypeEFA: {
+			"0000:50:00.0": "0",
+			"0000:58:00.0": "1",
+			"0000:48:00.0": "2",
+			"0000:61:00.0": "3",
+		},
+		DeviceTypeNeuron: neuronToEfa,
+	}
+
+	tests := []struct {
+		name       string
+		deviceID   string
+		deviceType DeviceType
+		efaBDF     string
+	}{
+		{
+			name:       "neuron device lookup",
+			deviceID:   "2",
+			deviceType: DeviceTypeNeuron,
+			efaBDF:     "0000:48:00.0",
+		},
+		{
+			name:       "EFA device lookup",
+			deviceID:   "0000:48:00.0",
+			deviceType: DeviceTypeEFA,
+			efaBDF:     "0000:48:00.0",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := getDeviceGroupIDsImpl(tt.deviceID, tt.deviceType)
+
+			assert.NoError(t, err)
+			assert.Equal(t, map[string]string{
+				DeviceGroup1Id: tt.efaBDF,
+				DeviceGroup4Id: "f08c3280c569da54",
+			}, result)
+		})
+	}
+}
+
 func TestGetDeviceGroupIDsNoMocks(t *testing.T) {
 	tests := []struct {
 		name          string
@@ -417,6 +478,21 @@ func TestGetInstanceFamily(t *testing.T) {
 			name:         "trn2 stays trn2",
 			instanceType: "trn2.48xlarge",
 			expected:     "trn2",
+		},
+		{
+			name:         "finalized trn3s-es maps to trn3pds group",
+			instanceType: "trn3s-es.48xlarge",
+			expected:     "trn3pds",
+		},
+		{
+			name:         "finalized trn3n maps to trn3pds group",
+			instanceType: "trn3n.48xlarge",
+			expected:     "trn3pds",
+		},
+		{
+			name:         "trn3en (trn3max) stays trn3en",
+			instanceType: "trn3en.24xlarge",
+			expected:     "trn3en",
 		},
 		{
 			name:         "no dot returns whole string",

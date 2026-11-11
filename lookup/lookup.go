@@ -92,15 +92,24 @@ func getDeviceGroupIDsImpl(deviceID string, deviceType DeviceType) (map[string]s
 		// Note: for allocation on trn1, only 8 pods can request aligned allocation with group1
 		// this is because only 8 efa devices are on trn1, and neuron to efa devices are mapped 2:1
 		DeviceGroup1Id: efaBDF,
-		// Returns a hash, ensuring neuron devices in the same topology group of 4 get the same group ID.
-		// Their corresponding EFA devices will also get the same group ID.
-		DeviceGroup4Id: getDeviceGroupHash(neuronDeviceID, 4),
-		// Returns a hash, ensuring neuron devices in the same topology group of 8 get the same group ID.
-		// Their corresponding EFA devices will also get the same group ID.
-		DeviceGroup8Id: getDeviceGroupHash(neuronDeviceID, 8),
-		// Returns a hash, ensuring devices in the same topology group of 16 (i.e. all neuron devices)
-		// get the same group ID. Their corresponding EFA devices will also get the same group ID.
-		DeviceGroup16Id: getDeviceGroupHash(neuronDeviceID, 16),
+	}
+
+	// Returns a hash, ensuring neuron devices in the same topology group of N get the same group ID.
+	// Their corresponding EFA devices will also get the same group ID. Groups larger than the
+	// instance's neuron device count are skipped: they would repeat a smaller group's ID
+	// (e.g. devicegroup8/16 on 4-device trn3en).
+	for _, group := range []struct {
+		id   string
+		size int
+	}{
+		{DeviceGroup4Id, 4},
+		{DeviceGroup8Id, 8},
+		{DeviceGroup16Id, 16},
+	} {
+		if group.size > len(neuronToEfa) {
+			continue
+		}
+		devicegroup_ids[group.id] = getDeviceGroupHash(neuronDeviceID, group.size)
 	}
 
 	klog.InfoS("Retrieved device group IDs", "deviceType", deviceType, "deviceId", deviceID, "deviceGroupIds", devicegroup_ids)

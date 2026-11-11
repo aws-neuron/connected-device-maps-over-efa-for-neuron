@@ -66,6 +66,38 @@ func (f *mockFile) Read(p []byte) (n int, err error) {
 func (f *mockFile) Close() error               { return nil }
 func (f *mockFile) Stat() (fs.FileInfo, error) { return nil, errors.New("not implemented") }
 
+func TestInitMappingsImplTrn3en(t *testing.T) {
+	originalGetInstanceType := getInstanceType
+	originalInitError := initError
+	originalNeuronToEfa := neuronToEfa
+	originalEfaToNeuron := efaToNeuron
+	defer func() {
+		getInstanceType = originalGetInstanceType
+		initError = originalInitError
+		neuronToEfa = originalNeuronToEfa
+		efaToNeuron = originalEfaToNeuron
+	}()
+
+	initError = nil
+	neuronToEfa = make(map[string]string)
+	efaToNeuron = make(map[string]string)
+	getInstanceType = func() (string, error) {
+		return "trn3en.24xlarge", nil
+	}
+
+	initMappingsImpl()
+
+	assert.Nil(t, initError)
+	// Neuron device ID -> EFA BDF from the Neuron Collectives mapping (P532186080)
+	assert.Equal(t, map[string]string{
+		"0": "0000:50:00.0",
+		"1": "0000:58:00.0",
+		"2": "0000:48:00.0",
+		"3": "0000:61:00.0",
+	}, neuronToEfa)
+	assert.Len(t, efaToNeuron, 4)
+}
+
 func TestInitMappingsImpl(t *testing.T) {
 	tests := []struct {
 		name             string
