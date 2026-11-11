@@ -4,10 +4,13 @@
     "trn2": "trn2",
     "trn2e": "trn2",
     "trn2u": "trn2",
-    "trn3": "trn3",
+    "trn3": "trn3pds",
+    "trn3n": "trn3pds",
     "trn3p": "trn3",
     "trn3pd98": "trn3",
     "trn3s": "trn3",
     "trn3-dev0": "trn3pds",
-    "trn3-dev1": "trn3pds"
+    "trn3-dev1": "trn3pds",
+    "trn3s-es": "trn3pds",
+    "trn3en": "trn3en"
 }

@@ -29,7 +29,9 @@ clean-modcache:: ## Run go clean -modcache against code.
 GOLANGCI_LINT = $(shell pwd)/bin/golangci-lint
 GOLANGCI_LINT_VERSION ?= v2.4.0
 GOSEC = $(shell pwd)/bin/gosec
-GOSEC_VERSION ?= v2.22.11
+# Pinned to gosec master (x/tools v0.52.0) for Go 1.27 export-data v5 support;
+# latest release v2.29.0 is on x/tools v0.49.0 (max v4). Revert when a release ships v0.52.0.
+GOSEC_VERSION ?= v2.29.1-0.20261012130337-71577268350e
 
 golangci-lint::
 	@[ -f $(GOLANGCI_LINT) ] || { \
